@@ -6,16 +6,25 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter the number of people:");
-        int numberPeople = Integer.parseInt(scanner.nextLine());
-
         Data data = new Data();
-        System.out.println("Enter all people:");
-        for(int i = 0; i < numberPeople ; i++ ){
-            data.add(scanner.nextLine());
+
+        if (args[0].equals("--data")){
+            data.load(args[1]);
         }
+        else {
+            System.out.println("Enter the number of people:");
+            int numberPeople = Integer.parseInt(scanner.nextLine());
+
+
+            System.out.println("Enter all people:");
+            for(int i = 0; i < numberPeople ; i++ ){
+                data.add(scanner.nextLine());
+            }
+        }
+
+
+
 //        System.out.println("Enter the number of search queries:");
 //        int numberSearch = Integer.parseInt(scanner.nextLine());
         int selection = -1;
