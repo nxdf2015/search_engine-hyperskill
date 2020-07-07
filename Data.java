@@ -1,36 +1,56 @@
 package search;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Data {
     private List<String> data;
+    private Map<String,List<Integer>> index;
+    private Search search;
+
 
     public Data() {
         data = new ArrayList<>();
+        index = new HashMap<>();
     }
 
     public void add(String line) {
         data.add(line);
     }
 
-    public List<String> find(String query){
-        Pattern pattern = Pattern.compile(query,Pattern.CASE_INSENSITIVE);
-        List<String>result  = new ArrayList<>();
+    public void setStrategy(Search search){
+        search.setData(data);
+        this.search = search;
 
-        for(int i =0  ; i < data.size() ; i++){
-            Matcher matcher = pattern.matcher(data.get(i));
-            if(matcher.find()){
-                result.add(data.get(i));
-            }
+    }
 
+    public  List<String> find(String query){
+       return   data.stream()
+                 .filter( line -> search.find(query).apply(line))
+                 .collect(Collectors.toList());
+
+
+
+    }
+
+    public List<String> findByIndex(String query){
+        if(index.isEmpty()){
+            getInvertedIndex();
         }
-        return result;
+
+        List<Integer> selected = new ArrayList<>();
+        if(!((selected = index.get(query)) == null)){
+            return selected
+                    .stream()
+                    .map(i ->data.get(i))
+                    .collect(Collectors.toList());
+        }
+        else {
+            return List.of();
+        }
     }
 
     public List<String> getAll() {
@@ -45,5 +65,22 @@ public class Data {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void getInvertedIndex(){
+       for(int  i = 0 ; i < data.size();i++){
+           String line = data.get(i);
+           for(String word : line.split(" ")){
+               int id = i;
+               index.compute(word, (key,values) -> {
+                   if (values == null) {
+                       values = new ArrayList<>();
+                   }
+                   values.add(id);
+                   return values;
+               } );
+           }
+       }
+
     }
 }

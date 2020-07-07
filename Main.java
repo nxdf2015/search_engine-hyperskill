@@ -2,6 +2,7 @@ package search;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Main {
@@ -9,7 +10,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         Data data = new Data();
 
-        if (args[0].equals("--data")){
+        if (args.length == 2  && args[0].equals("--data")){
             data.load(args[1]);
         }
         else {
@@ -44,11 +45,43 @@ public class Main {
                  else {
                      switch(selection){
                          case 1 :
+                             boolean invalidStrategy = false;
+                             Search search = null;
+                             do {
+                                 System.out.println("Select a strategy: ALL, ANY, NONE");
+                                 String strategy = scanner.nextLine();
+
+                                 switch (strategy) {
+                                     case "ALL":
+                                         search = new SearchAll();
+                                         break;
+                                     case "NONE":
+                                         search = new SearchNone();
+                                         break;
+                                     case "ANY":
+                                         search = new SearchAny();
+                                         break;
+                                     default:
+                                         invalidStrategy = true;
+
+                                 }
+                             }while(invalidStrategy == true);
+                             data.setStrategy(search);
+
                              System.out.println("Enter a name or email to search all suitable people.");
                              String query = scanner.nextLine();
                              List<String> response = data.find(query);
-                             response.stream()
-                                     .forEach(System.out::println);
+                             int numberFind;
+                             if ((numberFind = response.size()) > 0) {
+
+                                 System.out.println(numberFind + " persons found:");
+                                 response
+                                         .stream()
+                                         .forEach(System.out::println);
+                             }
+                             else {
+                                 System.out.println("No matching people found.");
+                             }
                              break;
                              case 2 :
                                  data.getAll()
